@@ -1,18 +1,23 @@
 from django.http.response import Http404
 from django.shortcuts import render
-from .models import Reminder
-from .serializers import ReminderSerializer
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from .models import Reminder
+from .serializers import ReminderSerializer
+from django.contrib.auth.models import User
 
 
 # Create your views here.
 class ReminderList(APIView):
 
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
-        reminder = Reminder.objects.all()
-        serializer = ReminderSerializer(reminder, many=True)
+        reminders = Reminder.objects.all()
+        serializer = ReminderSerializer(reminders, many=True)
         return Response(serializer.data)
 
     def post(self, request):
