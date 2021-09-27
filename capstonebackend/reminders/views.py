@@ -23,7 +23,7 @@ def get_all_reminders(request):
 
 
     
-@api_view(['GET','POST','PUT','DELETE'])
+@api_view(['GET','POST','DELETE'])
 @permission_classes([IsAuthenticated])
 
 #Only available if the user is logged in
@@ -40,15 +40,20 @@ def user_reminders(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    if request.method == 'PUT':
-        reminder = Reminder.objects.filter(user_id=request.user.id)
-        serializer = ReminderSerializer(reminder, data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    if request.method == 'DELETE':
-        reminder = Reminder.objects.filter(user_id=request.user.id)
-        reminder.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+@api_view(['DELETE'])
+@permission_classes([AllowAny])   
+def delete_user_reminders(request, reminder_id):   
+    reminder = Reminder.objects.filter(pk = reminder_id)
+    reminder.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['PUT'])
+@permission_classes([AllowAny])
+def update_reminder(request, reminder_id):
+    reminder = Reminder.objects.get(pk = reminder_id)
+    serializer = ReminderSerializer(reminder, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
