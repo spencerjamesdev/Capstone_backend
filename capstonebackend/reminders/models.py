@@ -9,4 +9,5 @@ class Reminder(models.Model):
     description = models.CharField(max_length=50)
     recurrence = models.IntegerField()
     day = models.DateField()
+    is_completed = models.BooleanField(default=False)
     

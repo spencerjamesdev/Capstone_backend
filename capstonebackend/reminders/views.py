@@ -23,7 +23,7 @@ def get_all_reminders(request):
 
 
     
-@api_view(['GET','POST','DELETE'])
+@api_view(['GET','POST'])
 @permission_classes([IsAuthenticated])
 
 #Only available if the user is logged in
@@ -50,8 +50,14 @@ def delete_user_reminders(request, reminder_id):
 
 @api_view(['PUT'])
 @permission_classes([AllowAny])
-def update_reminder(request, reminder_id):
-    reminder = Reminder.objects.get(pk = reminder_id)
+def update_reminder(request, pk):
+    
+    try:
+        reminder = Reminder.objects.get(pk=pk)
+    except Reminder.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    
     serializer = ReminderSerializer(reminder, data=request.data)
     if serializer.is_valid():
         serializer.save()
